@@ -1,7 +1,6 @@
 from pathlib import Path
-import sys
+from typing import List
 
-import pandas as pd
 import polars as pl
 
 ROOT = Path("/Users/kdl/me")
@@ -67,10 +66,24 @@ def search_note(q: str):
     return db
 
 
-if __name__ == "__main__":
-    args = sys.argv[1:]
-    got = search_note(" ".join(args))
+# renderers
 
-    # output:
-    for dir, text in zip(got["path"], got["text"]):
-        print(f"{text}")
+
+def fp(*q):
+    """Find Project - output matching projects"""
+    db = search_project(" ".join(q))
+    for dir, text in zip(db["path"], db["text"]):
+        print(f"{dir}: {text}")
+
+
+def fn(*q):
+    """Find Note - output all matching notes"""
+    db = search_note(" ".join(q)).sort("time")
+    for t in db["text"]:
+        print(t)
+
+
+if __name__ == "__main__":
+    import fire
+
+    fire.Fire({"fp": fp, "fn": fn})
