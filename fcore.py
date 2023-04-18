@@ -73,7 +73,7 @@ def fp(*q):
     """Find Project - output matching projects"""
     db = search_project(" ".join(q))
     for dir, text in zip(db["path"], db["text"]):
-        print(f"{dir}: {text}")
+        print(f"{ROOT}/{dir} {text}")
 
 
 def fn(*q):
@@ -83,7 +83,24 @@ def fn(*q):
         print(t)
 
 
+def alias():
+    """Generate aliases for shells and fzf"""
+    import sys
+
+    this_file = Path(__file__).absolute()
+    executable = sys.executable
+    q = "{q}"
+    awk = """{print \\"cd \\" \\$1}"""
+
+    out = f"""
+    alias fp='fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk}" | source'
+    alias fn='fzf --bind "change:reload(eval {executable} {this_file} fn {q})"'
+    """
+
+    print(out)
+
+
 if __name__ == "__main__":
     import fire
 
-    fire.Fire({"fp": fp, "fn": fn})
+    fire.Fire({"fp": fp, "fn": fn, "alias": alias})
