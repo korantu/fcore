@@ -13,4 +13,8 @@ Notes tell me:
  1. Read all notes.
  2. Load all notes in under 0.3 seconds.
  3. Add notes.
+
+ # Installing
+
+   pipenv run python fcore.py alias > ~/.config/fish/conf.d/fcore.fish # other shells should be working similarly
  

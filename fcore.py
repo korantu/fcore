@@ -39,7 +39,7 @@ def load_db():
     return pl.read_parquet(DB)
 
 
-def search_project(q: str):
+def search_project(q: str, unique=False):
     """Search for a project"""
     db = load_db()
     tokens = q.split(" ")
@@ -49,8 +49,9 @@ def search_project(q: str):
             | pl.col("text").str.to_lowercase().str.contains(token)
         )
 
-    filtered = db.unique(subset=["path"])
-    return filtered
+    if unique:
+        db = db.unique(subset=["path"])
+    return db
 
 
 def search_note(q: str):
@@ -67,13 +68,17 @@ def search_note(q: str):
 
 
 # renderers
+commands = {}
 
 
 def fp(*q):
     """Find Project - output matching projects"""
-    db = search_project(" ".join(q))
+    db = search_project(" ".join(q), unique=True).sort("time")
     for dir, text in zip(db["path"], db["text"]):
         print(f"{ROOT}/{dir} {text}")
+
+
+commands["fp"] = fp
 
 
 def fn(*q):
@@ -83,6 +88,19 @@ def fn(*q):
         print(t)
 
 
+commands["fn"] = fn
+
+
+def fo(*q):
+    """Find Openable - output runnable"""
+    db = search_project("http " + " ".join(q)).sort("time")
+    for dir, text in zip(db["path"], db["text"]):
+        print(f"{text} [{dir}]")
+
+
+commands["fo"] = fo
+
+
 def alias():
     """Generate aliases for shells and fzf"""
     import sys
@@ -90,17 +108,23 @@ def alias():
     this_file = Path(__file__).absolute()
     executable = sys.executable
     q = "{q}"
-    awk = """{print \\"cd \\" \\$1}"""
+    fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
+    awk_cd = """{print \\"cd \\" \\$1}"""
+    awk_open = """{print \\"open \\" \\$1}"""
 
     out = f"""
-    alias fp='fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk}" | source'
-    alias fn='fzf --bind "change:reload(eval {executable} {this_file} fn {q})"'
+    alias fp='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
+    alias fn='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fn {q})"'
+    alias fo='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
     """
 
     print(out)
 
 
+commands["alias"] = alias
+
+
 if __name__ == "__main__":
     import fire
 
-    fire.Fire({"fp": fp, "fn": fn, "alias": alias})
+    fire.Fire(commands)
