@@ -133,6 +133,16 @@ def fo(*q):
 commands["fo"] = fo
 
 
+def an(*q):
+    """Add Note - add a note to the db"""
+    db = add_note(" ".join(q))
+    print(f"{db.shape[0]} notes.")
+    
+
+
+commands["an"] = an
+
+
 def alias():
     """Generate aliases for shells and fzf"""
     import sys
@@ -148,6 +158,7 @@ def alias():
     alias fp='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
     alias fn='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fn {q})"'
     alias fo='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
+    alias an='{executable} {this_file} an '
     """
 
     print(out)
