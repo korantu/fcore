@@ -156,8 +156,8 @@ def alias():
 
     out = f"""
     alias fp='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
-    alias fn='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fn {q})"'
-    alias fo='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
+    alias fn='{fzf_default} fzf --sort=cat --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
+    alias fo='{fzf_default} fzf --sort=cat --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
     alias an='{executable} {this_file} an '
     """
 
