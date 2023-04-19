@@ -1,4 +1,6 @@
+import os
 from pathlib import Path
+import time
 from typing import List
 
 import polars as pl
@@ -8,6 +10,21 @@ ROOT = Path("/Users/kdl/me")
 DB = ROOT / "db.arrow"
 
 assert ROOT.exists(), "Root path does not exist"
+
+
+def project(current=Path.cwd()):
+    """Detect the project name from the current path"""
+    assert str(ROOT) in str(current)
+
+    if current.parent == ROOT:
+        return str(current.name)
+    else:
+        return project(current=current.parent)
+
+
+def timestamp():
+    """Return a timestamp in milliseconds"""
+    return str(int(time.time() * 1000))
 
 
 def collect_legacy_db_files():
@@ -37,6 +54,21 @@ def save_legacy_db():
 def load_db():
     """Load the db from arrow file"""
     return pl.read_parquet(DB)
+
+
+def save_db(db):
+    """Save the db to arrow file"""
+    db.write_parquet(DB)
+    return db
+
+
+def add_note(text: str):
+    """Add a note to the db"""
+    db = load_db()
+    extension = pl.DataFrame(dict(path=[project()], text=[text], time=[timestamp()]))
+    db = db.extend(extension)
+    save_db(db)
+    return db
 
 
 def search_project(q: str, unique=False):

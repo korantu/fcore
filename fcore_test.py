@@ -31,6 +31,25 @@ def test_load_db():
     print(db.head())
 
 
+def test_detect_project():
+    assert "fcore" in str(project())
+    print(project())
+
+
+def test_timestamp():
+    print(timestamp())
+    assert len(timestamp()) == 13
+
+
+def test_add_note():
+    ts = timestamp()
+
+    add_note(f"Senpusechka fcode on {ts}")
+
+    found = search_project(ts, unique=True)
+    assert len(found) == 1
+
+
 def test_search_project():
     """Search for a project"""
     common = search_project("action")
