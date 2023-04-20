@@ -25,3 +25,5 @@ Notes tell me:
    `fn` - Find Note - looks through all notes and copies the selected one to the clipboard.
    `fo` - Find and Open - shows openable notes and opens them.
    `an` - Add Note - add note.
+
+  When searching, `@` means from current project.

@@ -58,4 +58,6 @@ def test_search_project():
     assert len(common) > 1
 
     common = search_project("action frame")
+
+    common = search_project("@")
     print(common)

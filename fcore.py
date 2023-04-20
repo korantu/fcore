@@ -72,30 +72,20 @@ def add_note(text: str):
 
 
 def search_project(q: str, unique=False):
-    """Search for a project"""
+    """Search for a project; unuque if only one match per project needed"""
     db = load_db()
     tokens = q.split(" ")
     for token in tokens:
+        # special case for this location
+        if token == "@":  # @ is a special token for this location
+            db = db.filter(pl.col("path").str.contains(project()))
+            continue
         db = db.filter(
             pl.col("path").str.to_lowercase().str.contains(token)
             | pl.col("text").str.to_lowercase().str.contains(token)
         )
-
     if unique:
         db = db.unique(subset=["path"])
-    return db
-
-
-def search_note(q: str):
-    """Search for a project"""
-    db = load_db()
-    tokens = q.split(" ")
-    for token in tokens:
-        db = db.filter(
-            pl.col("path").str.to_lowercase().str.contains(token)
-            | pl.col("text").str.to_lowercase().str.contains(token)
-        )
-
     return db
 
 
@@ -105,7 +95,7 @@ commands = {}
 
 def fp(*q):
     """Find Project - output matching projects"""
-    db = search_project(" ".join(q), unique=True).sort("time")
+    db = search_project(" ".join(q), unique=True).sort("time", descending=True)
     for dir, text in zip(db["path"], db["text"]):
         print(f"{ROOT}/{dir} {text}")
 
@@ -115,9 +105,9 @@ commands["fp"] = fp
 
 def fn(*q):
     """Find Note - output all matching notes"""
-    db = search_note(" ".join(q)).sort("time")
-    for t in db["text"]:
-        print(t)
+    db = search_project(" ".join(q)).sort("time", descending=True)
+    for t, n in zip(db["time"], db["text"]):
+        print(f"{n} # [{t}]")
 
 
 commands["fn"] = fn
@@ -125,7 +115,7 @@ commands["fn"] = fn
 
 def fo(*q):
     """Find Openable - output runnable"""
-    db = search_project("http " + " ".join(q)).sort("time")
+    db = search_project("http " + " ".join(q)).sort("time", descending=True)
     for dir, text in zip(db["path"], db["text"]):
         print(f"{text} [{dir}]")
 
@@ -137,7 +127,6 @@ def an(*q):
     """Add Note - add a note to the db"""
     db = add_note(" ".join(q))
     print(f"{db.shape[0]} notes.")
-    
 
 
 commands["an"] = an
@@ -155,9 +144,9 @@ def alias():
     awk_open = """{print \\"open \\" \\$1}"""
 
     out = f"""
-    alias fp='{fzf_default} fzf --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
-    alias fn='{fzf_default} fzf --sort=cat --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
-    alias fo='{fzf_default} fzf --sort=cat --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
+    alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
+    alias fn='{fzf_default} fzf --disabled --sort=cat --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
+    alias fo='{fzf_default} fzf --disabled --sort=cat --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
     alias an='{executable} {this_file} an '
     """
 
