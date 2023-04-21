@@ -1,7 +1,5 @@
-import os
 from pathlib import Path
 import time
-from typing import List
 
 import polars as pl
 
@@ -122,7 +120,6 @@ def fo(*q):
 
 commands["fo"] = fo
 
-
 def an(*q):
     """Add Note - add a note to the db"""
     db = add_note(" ".join(q))
@@ -130,6 +127,25 @@ def an(*q):
 
 
 commands["an"] = an
+
+def launch():
+    """Read stdin and print the command suitable to launch the line"""
+    line = input()
+    url = line.split(" ")[0]
+    print(f"open '{url}'")
+
+
+commands["launch"] = launch
+
+
+def cd():
+    """Read stdin and change dir to first component"""
+    line = input()
+    dir = line.split(" ")[0]
+    print(f"cd {dir}")
+
+
+commands["cd"] = cd
 
 
 def alias():
@@ -140,13 +156,11 @@ def alias():
     executable = sys.executable
     q = "{q}"
     fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
-    awk_cd = """{print \\"cd \\" \\$1}"""
-    awk_open = """{print \\"open \\" \\$1}"""
 
     out = f"""
-    alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | awk "{awk_cd}" | source'
-    alias fn='{fzf_default} fzf --disabled --sort=cat --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
-    alias fo='{fzf_default} fzf --disabled --sort=cat --bind "change:reload(eval {executable} {this_file} fo {q})" | awk "{awk_open}" | source'
+    alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | {executable} {this_file} cd | source'
+    alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
+    alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fo {q})" | {executable} {this_file} launch | source'
     alias an='{executable} {this_file} an '
     """
 
