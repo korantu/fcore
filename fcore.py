@@ -34,6 +34,7 @@ def collect_legacy_db_files():
 def save_legacy_db():
     """Iterate through all the legacy db and save them as arrow file;
     very legacy"""
+    assert False, "Do not run this function"
     structure = dict(path=[], text=[], time=[])
     for path in collect_legacy_db_files():
         content = path.read_text().strip().splitlines()
@@ -87,90 +88,62 @@ def search_project(q: str, unique=False):
     return db
 
 
-# renderers
-commands = {}
+class Commands:
+    def fp(self, *q):
+        """Find Project - output matching projects"""
+        db = search_project(" ".join(q), unique=True).sort("time", descending=True)
+        for dir, text in zip(db["path"], db["text"]):
+            print(f"{ROOT}/{dir} {text}")
 
+    def fn(self, *q):
+        """Find Note - output all matching notes"""
+        db = search_project(" ".join(q)).sort("time", descending=True)
+        for t, n in zip(db["time"], db["text"]):
+            print(f"{n} # [{t}]")
 
-def fp(*q):
-    """Find Project - output matching projects"""
-    db = search_project(" ".join(q), unique=True).sort("time", descending=True)
-    for dir, text in zip(db["path"], db["text"]):
-        print(f"{ROOT}/{dir} {text}")
+    def fo(self, *q):
+        """Find Openable - output runnable"""
+        db = search_project("http " + " ".join(q)).sort("time", descending=True)
+        for dir, text in zip(db["path"], db["text"]):
+            print(f"{text} [{dir}]")
 
+    def an(self, *q):
+        """Add Note - add a note to the db"""
+        db = add_note(" ".join(q))
+        print(f"{db.shape[0]} notes.")
 
-commands["fp"] = fp
+    def launch(self):
+        """Read stdin and print the command suitable to launch the line"""
+        line = input()
+        url = line.split(" ")[0]
+        print(f"open '{url}'")
 
+    def cd(self):
+        """Read stdin and change dir to first component"""
+        line = input()
+        dir = line.split(" ")[0]
+        print(f"cd {dir}")
 
-def fn(*q):
-    """Find Note - output all matching notes"""
-    db = search_project(" ".join(q)).sort("time", descending=True)
-    for t, n in zip(db["time"], db["text"]):
-        print(f"{n} # [{t}]")
+    def alias(self):
+        """Generate aliases for shells and fzf"""
+        import sys
 
+        this_file = Path(__file__).absolute()
+        executable = sys.executable
+        q = "{q}"
+        fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
 
-commands["fn"] = fn
+        out = f"""
+        alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | {executable} {this_file} cd | source'
+        alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
+        alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fo {q})" | {executable} {this_file} launch | source'
+        alias an='{executable} {this_file} an '
+        """
 
-
-def fo(*q):
-    """Find Openable - output runnable"""
-    db = search_project("http " + " ".join(q)).sort("time", descending=True)
-    for dir, text in zip(db["path"], db["text"]):
-        print(f"{text} [{dir}]")
-
-
-commands["fo"] = fo
-
-def an(*q):
-    """Add Note - add a note to the db"""
-    db = add_note(" ".join(q))
-    print(f"{db.shape[0]} notes.")
-
-
-commands["an"] = an
-
-def launch():
-    """Read stdin and print the command suitable to launch the line"""
-    line = input()
-    url = line.split(" ")[0]
-    print(f"open '{url}'")
-
-
-commands["launch"] = launch
-
-
-def cd():
-    """Read stdin and change dir to first component"""
-    line = input()
-    dir = line.split(" ")[0]
-    print(f"cd {dir}")
-
-
-commands["cd"] = cd
-
-
-def alias():
-    """Generate aliases for shells and fzf"""
-    import sys
-
-    this_file = Path(__file__).absolute()
-    executable = sys.executable
-    q = "{q}"
-    fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
-
-    out = f"""
-    alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | {executable} {this_file} cd | source'
-    alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
-    alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fo {q})" | {executable} {this_file} launch | source'
-    alias an='{executable} {this_file} an '
-    """
-
-    print(out)
-
-
-commands["alias"] = alias
+        print(out)
 
 
 if __name__ == "__main__":
     import fire
 
-    fire.Fire(commands)
+    fire.Fire(Commands)
