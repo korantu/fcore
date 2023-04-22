@@ -8,10 +8,28 @@ def test_read_legacy_db_files():
     assert len(collect_legacy_db_files()) > 1
 
 
-def test_save_legacy_db():
-    """Iterate through all the legacy db and save them as arrow file"""
-    save_legacy_db()
-    assert DB.exists(), "Arrow file does not exist"
+# sync up - load past db
+def test_load_legacy_db():
+    """Read all from old db - and making sure all is recorded"""
+    expected = 31274  # number of lines in the legacy db
+    total = 0
+    paths_seen = []
+    for path in collect_legacy_db_files():
+        paths_seen.append(path)
+        content = path.read_text().strip().splitlines()
+        total += len(content)
+
+    assert len(paths_seen) == 161
+    assert total == expected, "Legacy db is not complete"
+
+    old_db = load_legacy_db()
+
+    db = load_db()
+
+    full_db = old_db.extend(db)
+    full_db = full_db.unique(subset="time").sort("time", descending=True)
+
+    save_db(full_db)
 
 
 def test_load_db():

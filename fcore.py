@@ -10,6 +10,12 @@ DB = ROOT / "db.arrow"
 assert ROOT.exists(), "Root path does not exist"
 
 
+def schema():
+    """Return the schema of the db"""
+    db_schema = dict(path=[], text=[], time=[])
+    return db_schema
+
+
 def project(current=Path.cwd()):
     """Detect the project name from the current path"""
     assert str(ROOT) in str(current)
@@ -28,14 +34,14 @@ def timestamp():
 def collect_legacy_db_files():
     """Each directory in the root folder contains a 'dots.kdl' text file"""
     name = "dots.kdl"
-    return [path / name for path in ROOT.iterdir() if (path / name).exists()]
+    old_db = [path / name for path in ROOT.iterdir() if (path / name).exists()]
+    old_db.append(ROOT / name)
+    return old_db
 
 
-def save_legacy_db():
-    """Iterate through all the legacy db and save them as arrow file;
-    very legacy"""
-    assert False, "Do not run this function"
-    structure = dict(path=[], text=[], time=[])
+def load_legacy_db():
+    """Return dataframe of legacy db"""
+    structure = schema()
     for path in collect_legacy_db_files():
         content = path.read_text().strip().splitlines()
         for line in content:
@@ -44,10 +50,8 @@ def save_legacy_db():
             structure["time"].append(line[:13])
 
     df = pl.DataFrame(structure)
-
-    df.write_parquet(DB)
-
-    assert DB.exists(), "Arrow file does not exist"
+    df = df.unique(subset=["time"]).sort("time", descending=True)
+    return df
 
 
 def load_db():
