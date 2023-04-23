@@ -146,6 +146,28 @@ class Commands:
 
         print(out)
 
+    def script(self):
+        """Generate script to use as the f command and put it on the path as f; Use as 
+          pipenv run python fcore.py script | source
+        """
+        import sys
+
+        this_file = Path(__file__).absolute()
+        executable = Path(sys.executable).absolute()
+        path = Path("~/.local/bin/f").expanduser().absolute()
+
+        all = '"\\$@"'
+
+        assert path.exists(), f"About to put binary on [{path}], but it does not exist"
+
+        steps = [
+            f"echo \\#!/bin/sh > {path}",
+            f"echo {executable} {this_file} {all} >> {path}",
+            f"chmod +x {path}",
+        ]
+
+        print("\n".join(steps))
+
 
 if __name__ == "__main__":
     import fire

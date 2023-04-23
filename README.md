@@ -9,21 +9,23 @@ Notes tell me:
 
  # Finding Core
 
- TODO:
- 1. Read all notes.
- 2. Load all notes in under 0.3 seconds.
- 3. Add notes.
+ make all centralized
 
  # Installing
+
+Create script `f`:
+ 
+  
+  pipenv run python fcore.py script | source
 
    pipenv run python fcore.py alias > ~/.config/fish/conf.d/fcore.fish # other shells should be working similarly
  
 
  # Usage
 
-   `fp` - Find Project - looks in all notes and project names to zoom into the needed one. Then cd's there.
-   `fn` - Find Note - looks through all notes and copies the selected one to the clipboard.
-   `fo` - Find and Open - shows openable notes and opens them.
-   `an` - Add Note - add note.
+     `fp` - Find Project - looks in all notes and project names to zoom into the needed one. Then cd's there.
+     `fn` - Find Note - looks through all notes and copies the selected one to the clipboard.
+     `fo` - Find and Open - shows openable notes and opens them.
+     `an` - Add Note - add note.
 
   When searching, `@` means from current project.
