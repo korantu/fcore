@@ -29,3 +29,17 @@ Create script `f`:
      `an` - Add Note - add note.
 
   When searching, `@` means from current project.
+
+# Ideas
+
+Everything starts with `f`. Query can be put in on command line or provided after. Search is case-insensitive, so we have capital letters like C, P, O for commands.
+
+When comand is present in the query, only relevant things are returned.
+
+Command 
+
+   `f search <search string>` outputs strings compatable with the request.
+
+Conclusion - I probably over-thinking it.
+
+

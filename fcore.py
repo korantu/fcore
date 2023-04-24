@@ -130,10 +130,7 @@ class Commands:
 
     def alias(self):
         """Generate aliases for shells and fzf"""
-        import sys
 
-        this_file = Path(__file__).absolute()
-        executable = sys.executable
         q = "{q}"
         fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
 
