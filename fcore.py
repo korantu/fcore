@@ -92,6 +92,25 @@ def search_project(q: str, unique=False):
     return db
 
 
+def search(tokens: list):
+    """Search for a project; unuque if only one match per project needed"""
+    db = load_db()
+    unique = False
+    for token in tokens:
+        # special case for this location
+        if token == "@":  # @ is a special token for this location
+            db = db.filter(pl.col("path").str.contains(project()))
+            continue
+        if token == ".":  # unique indicator
+            unique = True
+            continue
+        db = db.filter(
+            pl.col("path").str.to_lowercase().str.contains(token)
+            | pl.col("text").str.to_lowercase().str.contains(token)
+        )
+    return db if not unique else db.unique(subset=["path"])
+
+
 class Commands:
     def fp(self, *q):
         """Find Project - output matching projects"""
@@ -110,6 +129,12 @@ class Commands:
         db = search_project("http " + " ".join(q)).sort("time", descending=True)
         for dir, text in zip(db["path"], db["text"]):
             print(f"{text} [{dir}]")
+
+    def search(self, *q):
+        """Search - output all matching notes"""
+        db = search(q).sort("time", descending=True)
+        for p, t, n in zip(db["path"], db["time"], db["text"]):
+            print(f"{p}|{n} -> [{t}]")
 
     def an(self, *q):
         """Add Note - add a note to the db"""
@@ -144,8 +169,8 @@ class Commands:
         print(out)
 
     def script(self):
-        """Generate script to use as the f command and put it on the path as f; Use as 
-          pipenv run python fcore.py script | source
+        """Generate script to use as the f command and put it on the path as f; Use as
+        pipenv run python fcore.py script | source
         """
         import sys
 
