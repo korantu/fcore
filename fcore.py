@@ -138,10 +138,10 @@ class Commands:
         fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
 
         out = f"""
-        alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fp {q})" | {executable} {this_file} cd | source'
-        alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fn {q})" | pbcopy; echo "Copied to clipboard"'
-        alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval {executable} {this_file} fo {q})" | {executable} {this_file} launch | source'
-        alias an='{executable} {this_file} an '
+        alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval f fp {q})" | f cd | source'
+        alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval f fn {q})" | pbcopy; echo "Copied to clipboard"'
+        alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval f fo {q})" | f launch | source'
+        alias an='f an '
         """
 
         print(out)
