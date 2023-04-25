@@ -77,20 +77,8 @@ def test_search():
 
     assert len(list(cmd.search("-"))) > 30000, "Return all"
 
-    def docd(inp):
-        """Change dir to a note"""
-        return f"cd {note_dir(inp)}"
 
-    def doopen(inp: str):
-        """Open something meaningful"""
-        first = inp.split(" ")[0]
-        first_path = note_dir(inp) / first
-        if inp.startswith("http"):
-            return f"open {first}"
-        if first_path.exists():
-            return f"open {first_path}"
-
-    assert docd(out[0]) == "cd /Users/kdl/me/legacy-dots-reference-list-history"
+    assert do_cd(out[0]) == "cd /Users/kdl/me/legacy-dots-reference-list-history"
 
 
 def test_search_project():

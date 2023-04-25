@@ -121,6 +121,19 @@ def note_dir(formatted_note):
     return ROOT / formatted_note.split("|")[-1]
 
 
+def do_cd(inp):
+    """Generate command to change dir to a note"""
+    return f"cd {note_dir(inp)}"
+
+def do_open(inp: str):
+    """Generate command to do something meaningful"""
+    first = inp.split(" ")[0]
+    first_path = note_dir(inp) / first
+    if inp.startswith("http"):
+        return f"open {first}"
+    if first_path.exists():
+        return f"open {first_path}"
+    
 class Commands:
     def fp(self, *q):
         """Find Project - output matching projects"""
@@ -149,6 +162,25 @@ class Commands:
             if p == "":
                 p = "me"  # special case for root location
             yield (f"{n} -> [{t}] |{p}")
+
+
+    def do_cd(self, *q):
+        """Change Dir - change dir to first component of note"""
+        try:
+            inp = input()
+            print(do_cd(inp))
+        except:
+            print("echo 'No input'")
+
+
+    def do_open(self, *q):
+        """Open - open the first component of note"""
+        try:
+            inp = input()
+            print(do_open(inp))
+        except:
+            print("echo 'No input'")
+            
 
     def an(self, *q):
         """Add Note - add a note to the db"""
