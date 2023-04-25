@@ -68,6 +68,31 @@ def test_add_note():
     assert len(found) == 1
 
 
+def test_search():
+    cmd = Commands()
+    out = list(cmd.search("musu"))
+    assert len(out) == 1
+
+    assert note_dir(out[0]).exists(), "Should be able to extract dir"
+
+    assert len(list(cmd.search("-"))) > 30000, "Return all"
+
+    def docd(inp):
+        """Change dir to a note"""
+        return f"cd {note_dir(inp)}"
+
+    def doopen(inp: str):
+        """Open something meaningful"""
+        first = inp.split(" ")[0]
+        first_path = note_dir(inp) / first
+        if inp.startswith("http"):
+            return f"open {first}"
+        if first_path.exists():
+            return f"open {first_path}"
+
+    assert docd(out[0]) == "cd /Users/kdl/me/legacy-dots-reference-list-history"
+
+
 def test_search_project():
     """Search for a project"""
     common = search_project("action")

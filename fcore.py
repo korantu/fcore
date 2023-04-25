@@ -111,6 +111,16 @@ def search(tokens: list):
     return db if not unique else db.unique(subset=["path"])
 
 
+def format_note(space, text, timestamp):
+    """Format note for nice display, but parseable when selected"""
+    return f"{text} -> [{timestamp}] |{space}"
+
+
+def note_dir(formatted_note):
+    """Figure out what dir we are dealing with"""
+    return ROOT / formatted_note.split("|")[-1]
+
+
 class Commands:
     def fp(self, *q):
         """Find Project - output matching projects"""
@@ -132,9 +142,13 @@ class Commands:
 
     def search(self, *q):
         """Search - output all matching notes"""
+        if q == ["-"]:  # lonely - means all
+            q = []
         db = search(q).sort("time", descending=True)
         for p, t, n in zip(db["path"], db["time"], db["text"]):
-            print(f"{p}|{n} -> [{t}]")
+            if p == "":
+                p = "me"  # special case for root location
+            yield (f"{n} -> [{t}] |{p}")
 
     def an(self, *q):
         """Add Note - add a note to the db"""
