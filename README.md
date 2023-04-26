@@ -42,4 +42,6 @@ Command
 
 It then can be followed by `C`, `P` or `O`.
 
+`C`, `P`... are updating the looks of the string, so that the `source` command would do correct thing.
+
 
