@@ -75,7 +75,7 @@ def test_search():
 
     assert note_dir(out[0]).exists(), "Should be able to extract dir"
 
-    assert len(list(cmd.search("-"))) > 30000, "Return all"
+    assert len(list(cmd.search(""))) > 30000, "Return all"
 
 
     assert do_cd(out[0]) == "cd /Users/kdl/me/legacy-dots-reference-list-history"

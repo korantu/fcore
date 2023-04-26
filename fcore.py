@@ -154,9 +154,7 @@ class Commands:
             print(f"{text} [{dir}]")
 
     def search(self, *q):
-        """Search - output all matching notes"""
-        if q == ["-"]:  # lonely - means all
-            q = []
+        """Search according to the request"""
         db = search(q).sort("time", descending=True)
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
