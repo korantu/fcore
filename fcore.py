@@ -93,7 +93,8 @@ def search_project(q: str, unique=False):
 
 
 def search(tokens: list):
-    """Search for a project; unuque if only one match per project needed"""
+    """Search for a project; unuque if only one match per project needed;
+    next is up"""
     db = load_db()
     unique = False
     for token in tokens:
@@ -103,6 +104,8 @@ def search(tokens: list):
             continue
         if token == ".":  # unique indicator
             unique = True
+            continue
+        if len(token) == 1:  # ignore single tokens
             continue
         db = db.filter(
             pl.col("path").str.to_lowercase().str.contains(token)
@@ -125,6 +128,7 @@ def do_cd(inp):
     """Generate command to change dir to a note"""
     return f"cd {note_dir(inp)}"
 
+
 def do_open(inp: str):
     """Generate command to do something meaningful"""
     first = inp.split(" ")[0]
@@ -133,7 +137,8 @@ def do_open(inp: str):
         return f"open {first}"
     if first_path.exists():
         return f"open {first_path}"
-    
+
+
 class Commands:
     def fp(self, *q):
         """Find Project - output matching projects"""
@@ -155,12 +160,42 @@ class Commands:
 
     def search(self, *q):
         """Search according to the request"""
-        db = search(q).sort("time", descending=True)
+        db = search(q).sort("time", descending=True)  # type: ignore
+
+        def commment(space, note, timestamp):
+            return f"# {note} -> [{timestamp}] |{space}"
+
+        def changedir(space, note, timestamp):
+            return f"cd {ROOT / space} # {note} -> [{timestamp}]"
+
+        def copy(space, note, timestamp):
+            return f"echo {note} | pbcopy # [{timestamp}]|{space}"
+
+        def open(space, note, timestamp):
+            first = note.split(" ")[0]
+            rest = note[len(first) :]
+            first_path = ROOT / space / first
+            if first_path.exists():
+                return f"open {first_path} # {note} -> [{timestamp}]|{space}"
+            if first.startswith("http"):
+                return f"open '{first}' # {rest} -> [{timestamp}]|{space}"
+            return ""  # useless
+
+        renderers = {"P": changedir, "O": open, "C": copy}
+
+        renderer = commment
+
+        for k in renderers.keys():
+            if k in q:
+                renderer = renderers[k]
+
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
                 p = "me"  # special case for root location
-            yield (f"{n} -> [{t}] |{p}")
 
+            rendered = renderer(p, n, t)
+            if rendered != "":
+                yield rendered
 
     def do_cd(self, *q):
         """Change Dir - change dir to first component of note"""
@@ -170,7 +205,6 @@ class Commands:
         except:
             print("echo 'No input'")
 
-
     def do_open(self, *q):
         """Open - open the first component of note"""
         try:
@@ -178,7 +212,6 @@ class Commands:
             print(do_open(inp))
         except:
             print("echo 'No input'")
-            
 
     def an(self, *q):
         """Add Note - add a note to the db"""
