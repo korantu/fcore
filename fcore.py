@@ -99,6 +99,10 @@ def search(tokens: list):
 class Commands:
     def search(self, *q):
         """Search according to the request"""
+        
+        # make sure all is tring
+        q = [str(x) for x in q]
+
         db = search(q).sort("time", descending=True)  # type: ignore
 
         def commment(space, note, timestamp):
@@ -133,7 +137,7 @@ class Commands:
             # remove the A
             q = [x for x in q if x != "A"]
             # add the note
-            yield f"f an {' '.join(q)}"
+            yield f"f an '{' '.join(q)}'"
             return
 
         for p, t, n in zip(db["path"], db["time"], db["text"]):
@@ -146,6 +150,8 @@ class Commands:
 
     def an(self, *q):
         """Add Note - add a note to the db"""
+        # make sure only strins are there
+        q = [str(x) for x in q]
         db = add_note(" ".join(q))
         print(f"{db.shape[0]} notes.")
 
