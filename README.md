@@ -1,47 +1,37 @@
-# Notes to Find
+ # Notes
 
-Notes tell me: 
- - What I wanted to do.
- - How I wanted to do it.
- - What I neededed to do it.
+ Throught day we are interacting with flow of information. It takes time to strucutre and organize it.
 
- Flow is ssuper important - and information has to be back in millisecondss.
+ Instead, this project dealls with 'atoms' of informaion, such as a web address, a command, a quick scribble. This is only intended by consumption by the author.
 
- # Finding Core
-
- make all centralized
+ It is ok if some of the notes lose meaning, - at least they did not take time.
 
  # Installing
 
 Create script `f`:
  
-  
   pipenv run python fcore.py script | source
 
-   pipenv run python fcore.py alias > ~/.config/fish/conf.d/fcore.fish # other shells should be working similarly
+
+Then define `=` function:
+
+  cp equals.fish ~/.config/fish/conf.d/
  
 
  # Usage
 
-     `fp` - Find Project - looks in all notes and project names to zoom into the needed one. Then cd's there.
-     `fn` - Find Note - looks through all notes and copies the selected one to the clipboard.
-     `fo` - Find and Open - shows openable notes and opens them.
-     `an` - Add Note - add note.
+All starts with `=`.
 
-  When searching, `@` means from current project.
+Just enter search terms, either interactively or from command line directly - it can be edited immediately after.
 
-# Ideas
+Modifiers:
+  `.` - Only output one entry per `space`
+  `@` - Only output entries from current `space`
 
-Everything starts with `=`. Query can be put in on command line or provided after. Search is case-insensitive, so we have capital letters like C, P, O for commands.
 
-When comand is present in the query, only relevant things are returned.
-
-Command 
-
-   `= <search string>` outputs strings compatable with the request.
-
-It then can be followed by `C`, `P` or `O`.
-
-`C`, `P`... are updating the looks of the string, so that the `source` command would do correct thing.
+Actions:
+ `S` - `cd` to space
+ `O` - `open` the note; only shows notes where it is meaningful
+ `C` - copy to clipboard
 
 

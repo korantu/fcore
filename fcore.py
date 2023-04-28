@@ -74,24 +74,6 @@ def add_note(text: str):
     return db
 
 
-def search_project(q: str, unique=False):
-    """Search for a project; unuque if only one match per project needed"""
-    db = load_db()
-    tokens = q.split(" ")
-    for token in tokens:
-        # special case for this location
-        if token == "@":  # @ is a special token for this location
-            db = db.filter(pl.col("path").str.contains(project()))
-            continue
-        db = db.filter(
-            pl.col("path").str.to_lowercase().str.contains(token)
-            | pl.col("text").str.to_lowercase().str.contains(token)
-        )
-    if unique:
-        db = db.unique(subset=["path"])
-    return db
-
-
 def search(tokens: list):
     """Search for a project; unuque if only one match per project needed;
     next is up"""
@@ -114,50 +96,7 @@ def search(tokens: list):
     return db if not unique else db.unique(subset=["path"])
 
 
-def format_note(space, text, timestamp):
-    """Format note for nice display, but parseable when selected"""
-    return f"{text} -> [{timestamp}] |{space}"
-
-
-def note_dir(formatted_note):
-    """Figure out what dir we are dealing with"""
-    return ROOT / formatted_note.split("|")[-1]
-
-
-def do_cd(inp):
-    """Generate command to change dir to a note"""
-    return f"cd {note_dir(inp)}"
-
-
-def do_open(inp: str):
-    """Generate command to do something meaningful"""
-    first = inp.split(" ")[0]
-    first_path = note_dir(inp) / first
-    if inp.startswith("http"):
-        return f"open {first}"
-    if first_path.exists():
-        return f"open {first_path}"
-
-
 class Commands:
-    def fp(self, *q):
-        """Find Project - output matching projects"""
-        db = search_project(" ".join(q), unique=True).sort("time", descending=True)
-        for dir, text in zip(db["path"], db["text"]):
-            print(f"{ROOT}/{dir} {text}")
-
-    def fn(self, *q):
-        """Find Note - output all matching notes"""
-        db = search_project(" ".join(q)).sort("time", descending=True)
-        for t, n in zip(db["time"], db["text"]):
-            print(f"{n} # [{t}]")
-
-    def fo(self, *q):
-        """Find Openable - output runnable"""
-        db = search_project("http " + " ".join(q)).sort("time", descending=True)
-        for dir, text in zip(db["path"], db["text"]):
-            print(f"{text} [{dir}]")
-
     def search(self, *q):
         """Search according to the request"""
         db = search(q).sort("time", descending=True)  # type: ignore
@@ -181,13 +120,21 @@ class Commands:
                 return f"open '{first}' # {rest} -> [{timestamp}]|{space}"
             return ""  # useless
 
-        renderers = {"P": changedir, "O": open, "C": copy}
+        renderers = {"S": changedir, "O": open, "C": copy}
 
         renderer = commment
 
         for k in renderers.keys():
             if k in q:
                 renderer = renderers[k]
+
+        # check if it is actually adding needed
+        if "A" in q:
+            # remove the A
+            q = [x for x in q if x != "A"]
+            # add the note
+            yield f"f an {' '.join(q)}"
+            return
 
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
@@ -197,53 +144,10 @@ class Commands:
             if rendered != "":
                 yield rendered
 
-    def do_cd(self, *q):
-        """Change Dir - change dir to first component of note"""
-        try:
-            inp = input()
-            print(do_cd(inp))
-        except:
-            print("echo 'No input'")
-
-    def do_open(self, *q):
-        """Open - open the first component of note"""
-        try:
-            inp = input()
-            print(do_open(inp))
-        except:
-            print("echo 'No input'")
-
     def an(self, *q):
         """Add Note - add a note to the db"""
         db = add_note(" ".join(q))
         print(f"{db.shape[0]} notes.")
-
-    def launch(self):
-        """Read stdin and print the command suitable to launch the line"""
-        line = input()
-        url = line.split(" ")[0]
-        print(f"open '{url}'")
-
-    def cd(self):
-        """Read stdin and change dir to first component"""
-        line = input()
-        dir = line.split(" ")[0]
-        print(f"cd {dir}")
-
-    def alias(self):
-        """Generate aliases for shells and fzf"""
-
-        q = "{q}"
-        fzf_default = 'FZF_DEFAULT_COMMAND="echo Enter a search query"'
-
-        out = f"""
-        alias fp='{fzf_default} fzf --disabled --bind "change:reload(eval f fp {q})" | f cd | source'
-        alias fn='{fzf_default} fzf --disabled --bind "change:reload(eval f fn {q})" | pbcopy; echo "Copied to clipboard"'
-        alias fo='{fzf_default} fzf --disabled --bind "change:reload(eval f fo {q})" | f launch | source'
-        alias an='f an '
-        """
-
-        print(out)
 
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as

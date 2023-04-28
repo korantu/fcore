@@ -50,45 +50,20 @@ def test_load_db():
 
 
 def test_detect_project():
+    """Detect the project name from the current path"""
     assert "fcore" in str(project())
-    print(project())
 
 
 def test_timestamp():
+    """Return a timestamp in milliseconds"""
     print(timestamp())
     assert len(timestamp()) == 13
 
 
-def test_add_note():
+def test_add_search_note():
     ts = timestamp()
 
     add_note(f"Senpusechka fcode on {ts}")
 
-    found = search_project(ts, unique=True)
+    found = search([ts])
     assert len(found) == 1
-
-
-def test_search():
-    cmd = Commands()
-    out = list(cmd.search("musu"))
-    assert len(out) == 1
-
-    assert note_dir(out[0]).exists(), "Should be able to extract dir"
-
-    assert len(list(cmd.search(""))) > 30000, "Return all"
-
-
-    assert do_cd(out[0]) == "cd /Users/kdl/me/legacy-dots-reference-list-history"
-
-
-def test_search_project():
-    """Search for a project"""
-    common = search_project("action")
-    # drop duplicate paths:
-    common = common.unique(subset="path")
-    assert len(common) > 1
-
-    common = search_project("action frame")
-
-    common = search_project("@")
-    print(common)
