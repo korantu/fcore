@@ -2,7 +2,7 @@
 
  Throught day we are interacting with flow of information. It takes time to strucutre and organize it.
 
- Instead, this project dealls with 'atoms' of informaion, such as a web address, a command, a quick scribble. This is only intended by consumption by the author.
+ Instead, this project deals with 'atoms' of informaion, such as a web address, a command, a quick scribble. This is only intended by consumption by the author.
 
  It is ok if some of the notes lose meaning, - at least they did not take time.
 
