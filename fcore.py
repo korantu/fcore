@@ -155,6 +155,14 @@ class Commands:
         db = add_note(" ".join(q))
         print(f"{db.shape[0]} notes.")
 
+    def norm(self, *q):
+        """Rename provided file to replace spaces from their names with dashes"""
+        path = Path(" ".join(q))
+        assert path.exists(), f"Path [{path}] does not exist"
+        new_path = path.parent / path.name.replace(" ", "-")
+        path.rename(new_path)
+        
+
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
         pipenv run python fcore.py script | source

@@ -35,3 +35,10 @@ Actions:
  `C` - copy to clipboard
 
 
+ # `f` command
+
+ - `search <query>`: perform search aming notes, with the commands listed above.
+ - `an <note text>`: add note.
+ - `norm <file name>`: rename file so that it could be used in a note - without spaces.
+
+
