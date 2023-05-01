@@ -42,3 +42,4 @@ Actions:
  - `norm <file name>`: rename file so that it could be used in a note - without spaces.
 
 
+.
