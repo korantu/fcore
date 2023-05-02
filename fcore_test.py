@@ -67,3 +67,13 @@ def test_add_search_note():
 
     found = search([ts])
     assert len(found) == 1
+
+
+def test_time_remdering():
+    ts = timestamp()
+
+    assert human_time(ts) == "just now"
+
+    assert human_time(int(ts) - 1000 * 60 * 60 * 24 * 2) == "2d ago"
+
+    assert human_time(1000000000) == "1970-01-12"

@@ -96,10 +96,37 @@ def search(tokens: list):
     return db if not unique else db.unique(subset=["path"])
 
 
+def human_time(t):
+    import datetime
+
+    ms_epoch = int(t)
+
+    # convert milliseconds epoch to datetime object
+    dt = datetime.datetime.fromtimestamp(ms_epoch / 1000.0)
+
+    # get current datetime
+    now = datetime.datetime.now()
+
+    # calculate time difference
+    delta = now - dt
+
+    # format time difference in human readable short form
+    if delta.days > 20:
+        return dt.strftime("%y-%m-%d")
+    elif delta.days > 0:
+        return f"{delta.days}d ago"
+    elif delta.seconds > 3600:
+        return f"{delta.seconds // 3600}h ago"
+    elif delta.seconds > 60:
+        return f"{delta.seconds // 60}m ago"
+    else:
+        return "just now"
+
+
 class Commands:
     def search(self, *q):
         """Search according to the request"""
-        
+
         # make sure all is tring
         q = [str(x) for x in q]
 
@@ -140,9 +167,14 @@ class Commands:
             yield f"f an '{' '.join(q)}'"
             return
 
+        # main renderer
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
                 p = "me"  # special case for root location
+
+            # only do time conversion if we got not too many hits:
+            if len(db) < 500:
+                t = human_time(t)
 
             rendered = renderer(p, n, t)
             if rendered != "":
@@ -161,7 +193,6 @@ class Commands:
         assert path.exists(), f"Path [{path}] does not exist"
         new_path = path.parent / path.name.replace(" ", "-")
         path.rename(new_path)
-        
 
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
