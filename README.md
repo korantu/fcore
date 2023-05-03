@@ -40,6 +40,7 @@ Actions:
  - `search <query>`: perform search aming notes, with the commands listed above.
  - `an <note text>`: add note.
  - `norm <file name>`: rename file so that it could be used in a note - without spaces.
+ - `png <list of words>`: saves png and copies name to clipboard for use.
 
 
 .

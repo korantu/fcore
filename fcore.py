@@ -194,6 +194,20 @@ class Commands:
         new_path = path.parent / path.name.replace(" ", "-")
         path.rename(new_path)
 
+    def png(self, *q):
+        """paste image from clipboard to current directory, in OSX"""
+        import subprocess
+        import pyperclip
+
+        name = "-".join(q) + ".png"
+
+        subprocess.run(["pngpaste", name])
+
+        # copy name to clipboard
+        pyperclip.copy(name)
+
+        print(f"copied [{name}] to clipboard")
+
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
         pipenv run python fcore.py script | source

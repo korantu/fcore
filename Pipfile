@@ -11,6 +11,7 @@ pyarrow = "*"
 pdbr = "*"
 jupyter = "*"
 fire = "*"
+pyperclip = "*"
 
 [dev-packages]
 
