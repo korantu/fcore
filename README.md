@@ -42,5 +42,5 @@ Actions:
  - `norm <file name>`: rename file so that it could be used in a note - without spaces.
  - `png <list of words>`: saves png and copies name to clipboard for use.
 
-
-.
+ # TODO
+- snippets
