@@ -27,10 +27,11 @@ Just enter search terms, either interactively or from command line directly - it
 Modifiers:
   `.` - Only output one entry per `space`
   `@` - Only output entries from current `space`
+  `@<kw>` - Output entries from spaces with `<kw>` in name
 
 
 Actions:
- `S` - `cd` to space
+ `S` - `cd` to space; if there is none, new will be created
  `O` - `open` the note; only shows notes where it is meaningful
  `C` - copy to clipboard
 

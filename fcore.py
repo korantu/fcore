@@ -84,6 +84,9 @@ def search(tokens: list):
         if token == "@":  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(project()))
             continue
+        if token[0] == "@" and len(token) > 1:  # @ is a special token for this location
+            db = db.filter(pl.col("path").str.contains(token[1:]))
+            continue
         if token == ".":  # unique indicator
             unique = True
             continue
@@ -124,6 +127,8 @@ def human_time(t):
 
 
 class Commands:
+    """Commands for train of thought"""
+
     def search(self, *q):
         """Search according to the request"""
 
@@ -165,6 +170,11 @@ class Commands:
             q = [x for x in q if x != "A"]
             # add the note
             yield f"f an '{' '.join(q)}'"
+            return
+
+        # create new dir if cant find anything
+        if len(db) == 0 and "S" in q:
+            yield f"mkdir {ROOT / q[0]}; cd {ROOT / q[0]}"
             return
 
         # main renderer
