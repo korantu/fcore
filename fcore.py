@@ -193,8 +193,16 @@ class Commands:
     def an(self, *q):
         """Add Note - add a note to the db"""
         # make sure only strins are there
-        q = [str(x) for x in q]
-        db = add_note(" ".join(q))
+        # maybe we need standard input
+        if len(q) == 0:
+            # read from stdin
+            line = input()
+            line = line.strip()
+            print(f"about to add {line}")
+            db = add_note(line)
+        else:
+            q = [str(x) for x in q]
+            db = add_note(" ".join(q))
         print(f"{db.shape[0]} notes.")
 
     def norm(self, *q):
