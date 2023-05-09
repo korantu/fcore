@@ -194,11 +194,13 @@ class Commands:
         """Add Note - add a note to the db"""
         # make sure only strins are there
         # maybe we need standard input
-        if len(q) == 0:
+        if len(q) == 0 or q[0] == ".":
             # read from stdin
             line = input()
             line = line.strip()
-            print(f"about to add {line}")
+            if q[0] == ".":
+                line += f" # {' '.join(q[1:])}"
+            print(line)
             db = add_note(line)
         else:
             q = [str(x) for x in q]
