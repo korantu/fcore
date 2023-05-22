@@ -156,7 +156,10 @@ class Commands:
                 return f"open '{first}' # {rest} -> [{timestamp}]|{space}"
             return ""  # useless
 
-        renderers = {"S": changedir, "O": open, "C": copy}
+        def asis(space, note, timestamp):
+            return f"{note} # [{timestamp}]|{space}"
+
+        renderers = {"S": changedir, "O": open, "C": copy, "R": asis}
 
         renderer = commment
 
@@ -198,7 +201,7 @@ class Commands:
             # read from stdin
             line = input()
             line = line.strip()
-            if q[0] == ".":
+            if len(q) > 0 and q[0] == ".":
                 line += f" # {' '.join(q[1:])}"
             print(line)
             db = add_note(line)
