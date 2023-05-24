@@ -56,7 +56,9 @@ def load_legacy_db():
 
 def load_db():
     """Load the db from arrow file"""
-    return pl.read_parquet(DB)
+    db = pl.read_parquet(DB)
+    db = db.with_columns(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts")).sort("ts")
+    return db
 
 
 def save_db(db):
@@ -77,6 +79,8 @@ def add_note(text: str):
 def search(tokens: list):
     """Search for a project; unuque if only one match per project needed;
     next is up"""
+    # current epoch
+    epoch = int(time.time())
     db = load_db()
     unique = False
     for token in tokens:
@@ -84,6 +88,9 @@ def search(tokens: list):
         if token == "@":  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(project()))
             continue
+        if token == "%": # % means we only caare for recent events
+            two_weeks_ago = epoch - 86400 * 14
+            db = db.filter(pl.col("ts") > two_weeks_ago)
         if token[0] == "@" and len(token) > 1:  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(token[1:]))
             continue
