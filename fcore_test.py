@@ -49,6 +49,13 @@ def test_load_db():
     print(db.head())
 
 
+def test_time_db():
+    db = load_db()
+    db = db.select(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts"))
+    assert len(db) - len(set(db["ts"].to_list())) == 0, "Seconds have to be unique"
+    
+
+
 def test_detect_project():
     """Detect the project name from the current path"""
     assert "fcore" in str(project())

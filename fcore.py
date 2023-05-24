@@ -102,10 +102,10 @@ def search(tokens: list):
 def human_time(t):
     import datetime
 
-    ms_epoch = int(t)
+    epoch = int(t[:10])
 
     # convert milliseconds epoch to datetime object
-    dt = datetime.datetime.fromtimestamp(ms_epoch / 1000.0)
+    dt = datetime.datetime.fromtimestamp(epoch)
 
     # get current datetime
     now = datetime.datetime.now()
