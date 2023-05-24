@@ -57,7 +57,7 @@ def load_legacy_db():
 def load_db():
     """Load the db from arrow file"""
     db = pl.read_parquet(DB)
-    db = db.with_columns(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts")).sort("ts")
+    db = db.sort("time")
     return db
 
 
@@ -90,6 +90,7 @@ def search(tokens: list):
             continue
         if token == "%": # % means we only caare for recent events
             two_weeks_ago = epoch - 86400 * 14
+            db = db.with_columns(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts")).sort("ts")
             db = db.filter(pl.col("ts") > two_weeks_ago)
         if token[0] == "@" and len(token) > 1:  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(token[1:]))
@@ -103,7 +104,7 @@ def search(tokens: list):
             pl.col("path").str.to_lowercase().str.contains(token)
             | pl.col("text").str.to_lowercase().str.contains(token)
         )
-    return db if not unique else db.unique(subset=["path"])
+    return db if not unique else db.unique(keep="last", maintain_order=True, subset=["path"])
 
 
 def human_time(t):
