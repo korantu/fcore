@@ -152,7 +152,7 @@ class Commands:
             return f"cd {ROOT / space} # {note} -> [{timestamp}]"
 
         def copy(space, note, timestamp):
-            return f"echo {note} | pbcopy # [{timestamp}]|{space}"
+            return f"""echo "{note}" | pbcopy # [{timestamp}]|{space}"""
 
         def open(space, note, timestamp):
             first = note.split(" ")[0]
