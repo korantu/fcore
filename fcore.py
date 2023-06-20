@@ -179,6 +179,10 @@ class Commands:
         if "A" in q:
             # remove the A
             q = [x for x in q if x != "A"]
+            # maybe it is a new project
+            if len(q) == 1 and q[0][0] == "@":
+                yield f"mkdir {ROOT / q[0][1:]}; cd {ROOT / q[0][1:]}"
+                return
             # add the note
             yield f"f an '{' '.join(q)}'"
             return
