@@ -159,7 +159,10 @@ class Commands:
             rest = note[len(first) :]
             first_path = ROOT / space / first
             if first_path.exists():
-                return f"open {first_path} # {note} -> [{timestamp}]|{space}"
+                if first_path.is_dir():
+                    return f"cd {first_path} # {rest} -> [{timestamp}]|{space}"
+                else:
+                    return f"open {first_path} # {note} -> [{timestamp}]|{space}"
             if first.startswith("http"):
                 return f"open '{first}' # {rest} -> [{timestamp}]|{space}"
             return ""  # useless
