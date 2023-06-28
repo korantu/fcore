@@ -159,6 +159,9 @@ class Commands:
             rest = note[len(first) :]
             first_path = ROOT / space / first
             if first.startswith("~"):
+                # treat undescore as a space
+                if "_" in first:
+                    first = first.replace("_", " ")
                 # open it with 'open -a' command
                 return f"open -a '{first[1:]}' # {rest} -> [{timestamp}]|{space}"
             if first_path.exists():
