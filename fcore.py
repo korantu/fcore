@@ -158,6 +158,9 @@ class Commands:
             first = note.split(" ")[0]
             rest = note[len(first) :]
             first_path = ROOT / space / first
+            if first.startswith("~"):
+                # open it with 'open -a' command
+                return f"open -a '{first[1:]}' # {rest} -> [{timestamp}]|{space}"
             if first_path.exists():
                 if first_path.is_dir():
                     return f"cd {first_path} # {rest} -> [{timestamp}]|{space}"
