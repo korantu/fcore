@@ -49,6 +49,46 @@ def test_load_db():
     print(db.head())
 
 
+def test_sqlite_db():
+    """Export thing in sqlite db"""
+    db = load_db()
+    assert len(db) > 10000
+    dbh = db.head()
+    for i in zip(dbh["time"], dbh["path"], dbh["text"]):
+        print(i)
+
+    import sqlite3 as sql
+
+    conn = sql.connect("/tmp/fcode.db")
+    conn.execute("drop table if exists fcode")
+    conn.execute("create table if not exists fcode (time, path, text)")
+    conn.commit()
+    data = []
+    for i in db.to_pandas().itertuples():
+        data.append(i[1:])
+
+    conn.executemany("insert into fcode values (?, ?, ?)", data)
+    conn.commit()
+    
+    # load and compare
+    conn = sql.connect("/tmp/fcode.db")
+    result = conn.execute("select * from fcode").fetchall()
+    assert len(result) == len(db), "Sqlite db is not complete"
+
+    # benchmark
+    N = 10
+    started = time.time()
+    for _ in range(N):
+        obtained = conn.execute("select * from fcode").fetchall()
+        assert len(obtained) == len(db), "Sqlite db is not complete"
+    ended = time.time()
+    print(f"Time to load db: {(ended - started) / N}")
+
+    # print first 10
+    for i in result[:10]:
+        print(i)
+
+
 def test_time_db():
     db = load_db()
     db = db.select(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts"))
