@@ -88,9 +88,11 @@ def search(tokens: list):
         if token == "@":  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(project()))
             continue
-        if token == "%": # % means we only caare for recent events
-            two_weeks_ago = epoch - 86400 * 14
-            db = db.with_columns(pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts")).sort("ts")
+        if token == "%":  # % means we only caare for recent events
+            two_weeks_ago = epoch - 86400 * 31  # days
+            db = db.with_columns(
+                pl.col("time").str.slice(0, 10).cast(pl.Int64).alias("ts")
+            ).sort("ts")
             db = db.filter(pl.col("ts") > two_weeks_ago)
         if token[0] == "@" and len(token) > 1:  # @ is a special token for this location
             db = db.filter(pl.col("path").str.contains(token[1:]))
@@ -104,7 +106,11 @@ def search(tokens: list):
             pl.col("path").str.to_lowercase().str.contains(token)
             | pl.col("text").str.to_lowercase().str.contains(token)
         )
-    return db if not unique else db.unique(keep="last", maintain_order=True, subset=["path"])
+    return (
+        db
+        if not unique
+        else db.unique(keep="last", maintain_order=True, subset=["path"])
+    )
 
 
 def human_time(t):
@@ -207,7 +213,7 @@ class Commands:
                 p = "me"  # special case for root location
 
             # only do time conversion if we got not too many hits:
-            if len(db) < 500:
+            if len(db) < 1500:
                 t = human_time(t)
 
             rendered = renderer(p, n, t)
@@ -251,6 +257,38 @@ class Commands:
         pyperclip.copy(name)
 
         print(f"copied [{name}] to clipboard")
+
+    def ls(self, *q):
+        # walk directory and print all the files; ignore ".git" and ".DS_Store"; if there are more than 3 files in a directory, print the only the three ones
+
+        def dir_summary(path=Path("."), depth=0):
+            files_seen = 0
+            lines_per_dir = 4
+            for p in path.iterdir():
+                if p.name in [
+                    ".git",
+                    ".DS_Store",
+                    "__pycache__",
+                    ".ipynb_checkpoints",
+                    "node_modules",
+                    "venv",
+                ]:
+                    print(f"{'  '*depth}{p.name}/")
+                    continue
+                if p.is_dir():
+                    print(f"{'  '*depth}{p.name}/")
+                    dir_summary(p, depth + 1)
+                else:
+                    files_seen += 1
+                    if files_seen < lines_per_dir:
+                        print(f"{'  '*depth}{p.name}")
+                    if files_seen == lines_per_dir:
+                        print(f"{'  '*depth}...")
+
+        try:
+            dir_summary()
+        except PermissionError:
+            print("Permission error. Try again with sudo.")
 
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
