@@ -44,4 +44,6 @@ Actions:
  - `png <list of words>`: saves png and copies name to clipboard for use.
 
  # TODO
+- search inside txt 
+- how exactly it is going to be set up
 - snippets

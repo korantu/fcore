@@ -163,16 +163,18 @@ class Commands:
         def open(space, note, timestamp):
             first = note.split(" ")[0]
             rest = note[len(first) :]
-            first_path = ROOT / space / first
-            if first.startswith("~"):
+            first_path = ROOT / space / first if len(first) < 60 else None
+            if first_path is not None and first.startswith("~"):
                 # treat undescore as a space
                 if "_" in first:
                     first = first.replace("_", " ")
                 # open it with 'open -a' command
                 return f"open -a '{first[1:]}' # {rest} -> [{timestamp}]|{space}"
-            if first_path.exists():
+            if first_path is not None and first_path.exists():
                 if first_path.is_dir():
                     return f"cd {first_path} # {rest} -> [{timestamp}]|{space}"
+                elif ".txt" in str(first_path): # use vim
+                    return f"nvim {first_path} # {rest} -> [{timestamp}]|{space}"
                 else:
                     return f"open {first_path} # {note} -> [{timestamp}]|{space}"
             if first.startswith("http"):
@@ -256,7 +258,9 @@ class Commands:
         # copy name to clipboard
         pyperclip.copy(name)
 
-        print(f"copied [{name}] to clipboard")
+        print(f"copied [{name}] to clipboard and added it to note")
+
+        add_note(f"{name}")
 
     def ls(self, *q):
         # walk directory and print all the files; ignore ".git" and ".DS_Store"; if there are more than 3 files in a directory, print the only the three ones
