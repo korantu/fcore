@@ -2,6 +2,7 @@ from pathlib import Path
 import time
 
 import polars as pl
+from polars.dependencies import json
 
 ROOT = Path("/Users/kdl/me")
 
@@ -293,6 +294,22 @@ class Commands:
             dir_summary()
         except PermissionError:
             print("Permission error. Try again with sudo.")
+
+    def all(self):
+        """Print all notes"""
+        db = load_db()
+
+        completed = []
+        
+        for p, t, n in zip(db["path"], db["time"], db["text"]):
+            if p == "":
+                p = "me"
+            completed.append([p, n, t])
+
+        # save as js file, exported
+        with Path("all.json").open("w") as f:
+            json.dump(completed, f, indent=4)
+
 
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
