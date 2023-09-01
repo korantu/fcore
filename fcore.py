@@ -164,7 +164,7 @@ class Commands:
         def open(space, note, timestamp):
             first = note.split(" ")[0]
             rest = note[len(first) :]
-            first_path = ROOT / space / first if len(first) < 60 else None
+            first_path = ROOT / space / first if len(first) < 80 else None
             if first_path is not None and first.startswith("~"):
                 # treat undescore as a space
                 if "_" in first:
