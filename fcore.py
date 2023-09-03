@@ -174,7 +174,7 @@ class Commands:
             if first_path is not None and first_path.exists():
                 if first_path.is_dir():
                     return f"cd {first_path} # {rest} -> [{timestamp}]|{space}"
-                elif ".txt" in str(first_path): # use vim
+                elif ".txt" in str(first_path):  # use vim
                     return f"nvim {first_path} # {rest} -> [{timestamp}]|{space}"
                 else:
                     return f"open {first_path} # {note} -> [{timestamp}]|{space}"
@@ -240,6 +240,16 @@ class Commands:
             db = add_note(" ".join(q))
         print(f"{db.shape[0]} notes.")
 
+    def pwd(self, *q):
+        """print path to current directory or specified file
+        relative to the space root; supports only one argument"""
+
+        base = Path.cwd().relative_to(ROOT / project())
+        if len(q) == 0:
+            print(base)
+        if len(q) >= 1:
+            print(base / q[0])
+
     def norm(self, *q):
         """Rename provided file to replace spaces from their names with dashes"""
         path = Path(" ".join(q))
@@ -300,7 +310,7 @@ class Commands:
         db = load_db()
 
         completed = []
-        
+
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
                 p = "me"
@@ -309,7 +319,6 @@ class Commands:
         # save as js file, exported
         with Path("all.json").open("w") as f:
             json.dump(completed, f, indent=4)
-
 
     def script(self):
         """Generate script to use as the f command and put it on the path as f; Use as
