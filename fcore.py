@@ -174,6 +174,8 @@ class Commands:
             if first_path is not None and first_path.exists():
                 if first_path.is_dir():
                     return f"cd {first_path} # {rest} -> [{timestamp}]|{space}"
+                elif ".sh" in str(first_path):  # use vim
+                    return f"bash {first_path} # {rest} -> [{timestamp}]|{space}"
                 elif ".txt" in str(first_path):  # use vim
                     return f"nvim {first_path} # {rest} -> [{timestamp}]|{space}"
                 else:
