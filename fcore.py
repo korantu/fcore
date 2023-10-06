@@ -139,7 +139,7 @@ def human_time(t):
     elif delta.seconds > 60:
         return f"{delta.seconds // 60}m"
     else:
-        return "just now"
+        return "+"
 
 
 class Commands:
