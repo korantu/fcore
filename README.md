@@ -42,6 +42,7 @@ Actions:
  - `an <note text>`: add note.
  - `norm <file name>`: rename file so that it could be used in a note - without spaces.
  - `png <list of words>`: saves png and copies name to clipboard for use.
+ - `last`: prints out minutes since last note for updated use; --all adds minor additional info. .tmux status 
 
  # TODO
 - search inside txt 

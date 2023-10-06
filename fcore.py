@@ -132,11 +132,12 @@ def human_time(t):
     if delta.days > 20:
         return dt.strftime("%y-%m-%d")
     elif delta.days > 0:
-        return f"{delta.days}d ago"
+        return f"{delta.days}d"
     elif delta.seconds > 3600:
-        return f"{delta.seconds // 3600}h ago"
+        minutes = (delta.seconds // 60) % 60
+        return f"{delta.seconds // 3600}h {minutes}m"
     elif delta.seconds > 60:
-        return f"{delta.seconds // 60}m ago"
+        return f"{delta.seconds // 60}m"
     else:
         return "just now"
 
@@ -274,6 +275,17 @@ class Commands:
         print(f"copied [{name}] to clipboard and added it to note")
 
         add_note(f"{name}")
+
+    def last(self, all=False):
+        db = load_db()
+        changed = str(db[-1]["time"][0])
+        text = db[-1]["text"][0] # TODO: add 
+        message = f"{human_time(changed)}"
+        if all:
+            message += f" {text[:7]}"
+        
+        print(message)
+
 
     def ls(self, *q):
         # walk directory and print all the files; ignore ".git" and ".DS_Store"; if there are more than 3 files in a directory, print the only the three ones
