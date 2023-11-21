@@ -214,13 +214,15 @@ class Commands:
             return
 
         # main renderer
+        timed = 0 # make sure to limit nimber of time lookups
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
                 p = "me"  # special case for root location
 
             # only do time conversion if we got not too many hits:
-            if len(db) < 1500:
+            if timed < 1500:
                 t = human_time(t)
+                timed += 1
 
             rendered = renderer(p, n, t)
             if rendered != "":
@@ -279,13 +281,12 @@ class Commands:
     def last(self, all=False):
         db = load_db()
         changed = str(db[-1]["time"][0])
-        text = db[-1]["text"][0] # TODO: add 
+        text = db[-1]["text"][0]  # TODO: add
         message = f"{human_time(changed)}"
         if all:
             message += f" {text[:7]}"
-        
-        print(message)
 
+        print(message)
 
     def ls(self, *q):
         # walk directory and print all the files; ignore ".git" and ".DS_Store"; if there are more than 3 files in a directory, print the only the three ones
