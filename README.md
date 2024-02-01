@@ -48,3 +48,15 @@ Actions:
 - search inside txt 
 - how exactly it is going to be set up
 - snippets
+
+# Repl experiment.
+
+One python file.
+One Pipenv.
+
+Successful run of the file generates correct executable. 
+
+`gg` - 
+ - Search and see logs
+ - Jump to location
+ - Open document
