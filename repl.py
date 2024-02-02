@@ -31,6 +31,22 @@ SCRIPT.chmod(0o755)
 
 # readline stuff
 
+HISTORY_FILE = HERE / "log.txt"
+def save_history():
+    try:
+        readline.write_history_file(HISTORY_FILE)
+    except IOError:
+        # Handle error if something goes wrong
+        pass
+
+# Optionally, load existing history at the start
+try:
+    readline.read_history_file(HISTORY_FILE)
+except FileNotFoundError:
+    # No existing history, or file not found. Safe to ignore.
+    pass
+
+
 
 # Atoms
 
@@ -124,6 +140,7 @@ def start():
     print(r.header())
 
     while i := input():
+        save_history()
         print(r.ask(i))
 
 
