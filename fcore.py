@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 import time
 
@@ -53,6 +54,13 @@ def load_legacy_db():
     df = pl.DataFrame(structure)
     df = df.unique(subset=["time"]).sort("time", descending=True)
     return df
+
+
+@dataclass
+class Atom:
+    text: str
+    space: str
+    ts: float
 
 
 def load_db():
@@ -214,7 +222,7 @@ class Commands:
             return
 
         # main renderer
-        timed = 0 # make sure to limit nimber of time lookups
+        timed = 0  # make sure to limit nimber of time lookups
         for p, t, n in zip(db["path"], db["time"], db["text"]):
             if p == "":
                 p = "me"  # special case for root location
