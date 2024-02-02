@@ -116,8 +116,7 @@ class ReplSimpleSearch:
 
     def header(self):
         return f"""{header(self.db)}
-    And more possible...
-    """
+    And more possible..."""
 
     def narrow(self, db, token):
         return db.filter(db["text"].str.to_lowercase().str.contains(token))
@@ -131,7 +130,7 @@ class ReplSimpleSearch:
         for token in tokens[1:]:
             answers = self.narrow(answers, token)
 
-        return "\n".join(answers["text"].to_list())
+        return "\n".join([render_atom(a) for a in atoms(answers)])
 
 
 def start():
