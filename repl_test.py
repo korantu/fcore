@@ -1,14 +1,14 @@
 import time
 
 from fcore import load_db
-from repl import Repl, ReplSimpleSearch
+from repl import Repl, ReplSimpleSearch, atoms
 
 
 def test_load_db():
     """Load the db from arrow file"""
     # time it 10 times:
     db = load_db()
-        
+
     N = 10
     started = time.time()
     for _ in range(N):
@@ -20,6 +20,13 @@ def test_load_db():
     print(db.head())
 
 
+def test_headers():
+    db = load_db()
+    db = db.sort("time", descending=True).limit(10)
+
+    print(atoms(db))
+
+
 def test_repl():
     r = Repl()
     assert len(r.header()) > 3
@@ -27,11 +34,8 @@ def test_repl():
 
 def test_replsimplesearch():
     r = ReplSimpleSearch()
-    
+
     assert len(r.header()) > 3
 
     results = r.ask("tutu")
     assert len(results) > 0
-
-
-

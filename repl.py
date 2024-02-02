@@ -1,6 +1,8 @@
 # idea is to do repl only
+from dataclasses import dataclass
 import os
 from pathlib import Path
+from typing import List
 import readline
 import sys
 
@@ -26,6 +28,25 @@ cd {HERE}
 SCRIPT = HERE / NAME
 SCRIPT.write_text(LAUNCHER)
 SCRIPT.chmod(0o755)
+
+# readline stuff
+
+
+# Atoms
+
+
+@dataclass
+class Atom:
+    text: str
+    space: str
+    ts: float
+
+
+def atoms(db) -> list[Atom]:
+    return [
+        Atom(text, space, float(ts))
+        for text, space, ts in zip(db["text"], db["path"], db["time"])
+    ]
 
 
 class Repl:
