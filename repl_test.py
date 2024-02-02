@@ -1,7 +1,8 @@
+import datetime
 import time
 
 from fcore import load_db
-from repl import Repl, ReplSimpleSearch, atoms
+from repl import Repl, ReplSimpleSearch, header
 
 
 def test_load_db():
@@ -22,9 +23,7 @@ def test_load_db():
 
 def test_headers():
     db = load_db()
-    db = db.sort("time", descending=True).limit(10)
-
-    print(atoms(db))
+    assert len(header(db)) > 3
 
 
 def test_repl():

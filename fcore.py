@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 import time
 
@@ -54,13 +53,6 @@ def load_legacy_db():
     df = pl.DataFrame(structure)
     df = df.unique(subset=["time"]).sort("time", descending=True)
     return df
-
-
-@dataclass
-class Atom:
-    text: str
-    space: str
-    ts: float
 
 
 def load_db():

@@ -2,9 +2,9 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import List
 import readline
 import sys
+from typing import List
 
 from fcore import load_db
 
@@ -49,6 +49,43 @@ def atoms(db) -> list[Atom]:
     ]
 
 
+def human_time(epoch):
+    import datetime
+
+    epoch = int(epoch / 1000)
+
+    # convert milliseconds epoch to datetime object
+    dt = datetime.datetime.fromtimestamp(epoch)
+
+    # get current datetime
+    now = datetime.datetime.now()
+
+    # calculate time difference
+    delta = now - dt
+
+    # format time difference in human readable short form
+    if delta.days > 20:
+        return dt.strftime("%y-%m-%d")
+    elif delta.days > 0:
+        return f"{delta.days}d"
+    elif delta.seconds > 3600:
+        minutes = (delta.seconds // 60) % 60
+        return f"{delta.seconds // 3600}h {minutes}m"
+    elif delta.seconds > 60:
+        return f"{delta.seconds // 60}m"
+    else:
+        return "+"
+
+
+def render_atom(atom: Atom) -> str:
+    return f"{atom.space}|> {atom.text}: [{human_time(atom.ts)}]"
+
+
+def header(db):
+    db = db.sort("time", descending=True).limit(10).sort("time", descending=False)
+    return "\n".join([render_atom(a) for a in atoms(db)])
+
+
 class Repl:
     def header(self) -> str:
         return "Answers any question"
@@ -62,7 +99,9 @@ class ReplSimpleSearch:
         self.db = load_db()
 
     def header(self):
-        return "Simple Search REPL"
+        return f"""{header(self.db)}
+    And more possible...
+    """
 
     def narrow(self, db, token):
         return db.filter(db["text"].str.to_lowercase().str.contains(token))
