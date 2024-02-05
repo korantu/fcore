@@ -97,7 +97,7 @@ def human_time(epoch):
 
 
 def render_atom(atom: Atom) -> str:
-    return f"{atom.space}|> {atom.text}: [{human_time(atom.ts)}]"
+    return f"{atom.space}|> {atom.text}|> [{human_time(atom.ts)}]"
 
 
 def header(db):
