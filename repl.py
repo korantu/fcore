@@ -122,7 +122,10 @@ class ReplSimpleSearch:
     And more possible..."""
 
     def _narrow(self, db, token):
-        return db.filter(db["text"].str.to_lowercase().str.contains(token))
+        return db.filter(
+            db["text"].str.to_lowercase().str.contains(token)
+            | db["path"].str.to_lowercase().str.contains(token)
+        )
 
     def ask(self, question):
         tokens = question.lower().split()
