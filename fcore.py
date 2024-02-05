@@ -65,6 +65,9 @@ def load_db():
 def save_db(db):
     """Save the db to arrow file"""
     db.write_parquet(DB)
+    # backupt to tmp
+    timestamp = str(int(time.time()))
+    db.write_parquet(f"/tmp/db.{timestamp}.arrow")
     return db
 
 
