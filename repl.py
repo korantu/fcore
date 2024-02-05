@@ -4,9 +4,10 @@ import os
 from pathlib import Path
 import readline
 import sys
-from typing import List
 
-from fcore import load_db
+import polars as pl
+
+from fcore import load_db, project, save_db, timestamp
 
 # Find the python executable
 PYTHON_EXECUTABLE = Path(sys.executable).absolute()
@@ -141,15 +142,24 @@ class ReplAdd:
         return f"""{header(self.db)}
     Add a new entry please"""
 
-    def ask(self, question):
+    def ask(self, addition):
         """Adding the content of the question"""
+
+        self.db = load_db()
+        extension = pl.DataFrame(
+            dict(path=[project()], text=[addition], time=[timestamp()])
+        )
+        self.db = self.db.extend(extension)
+        save_db(self.db)
         print("Added")
         return f"""{header(self.db)}"""
 
+
 MODES = {
-        "a": ReplAdd,
-        "s": ReplSimpleSearch,
-        }
+    "a": ReplAdd,
+    "s": ReplSimpleSearch,
+}
+
 
 def help():
     """Automatically generate hints from modes; Use the class names"""
