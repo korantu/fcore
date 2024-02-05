@@ -118,7 +118,7 @@ class ReplSimpleSearch:
         return f"""{header(self.db)}
     And more possible..."""
 
-    def narrow(self, db, token):
+    def _narrow(self, db, token):
         return db.filter(db["text"].str.to_lowercase().str.contains(token))
 
     def ask(self, question):
@@ -126,19 +126,56 @@ class ReplSimpleSearch:
         if len(tokens) == 0:
             return "Please ask a question"
 
-        answers = self.narrow(self.db, tokens[0])
+        answers = self._narrow(self.db, tokens[0])
         for token in tokens[1:]:
-            answers = self.narrow(answers, token)
+            answers = self._narrow(answers, token)
 
         return "\n".join([render_atom(a) for a in atoms(answers)])
 
 
-def start():
-    r = ReplSimpleSearch()
+class ReplAdd:
+    def __init__(self):
+        self.db = load_db()
 
-    print(r.header())
+    def header(self):
+        return f"""{header(self.db)}
+    Add a new entry please"""
+
+    def ask(self, question):
+        """Adding the content of the question"""
+        print("Added")
+        return f"""{header(self.db)}"""
+
+MODES = {
+        "a": ReplAdd,
+        "s": ReplSimpleSearch,
+        }
+
+def help():
+    """Automatically generate hints from modes; Use the class names"""
+    hints = []
+    for mode_key, mode_class in MODES.items():
+        mode_hint = f"{mode_key}: {mode_class.__name__}"
+        hints.append(mode_hint)
+    return "\n".join(hints)
+
+def start():
+    def select_mode():
+        r = ReplSimpleSearch()
+        print(r.header())
+        return r
+
+    r = select_mode()
 
     while i := input():
+        if len(i) <= 1:
+            if i in MODES.keys():
+                r = MODES[i]()
+                print(r.header())
+                continue
+            else:
+                print(help())
+                continue
         save_history()
         print(r.ask(i))
 
