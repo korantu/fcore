@@ -33,6 +33,8 @@ SCRIPT.chmod(0o755)
 # readline stuff
 
 HISTORY_FILE = HERE / "log.txt"
+
+
 def save_history():
     try:
         readline.write_history_file(HISTORY_FILE)
@@ -40,13 +42,13 @@ def save_history():
         # Handle error if something goes wrong
         pass
 
+
 # Optionally, load existing history at the start
 try:
     readline.read_history_file(HISTORY_FILE)
 except FileNotFoundError:
     # No existing history, or file not found. Safe to ignore.
     pass
-
 
 
 # Atoms
@@ -168,6 +170,7 @@ def help():
         mode_hint = f"{mode_key}: {mode_class.__name__}"
         hints.append(mode_hint)
     return "\n".join(hints)
+
 
 def start():
     def select_mode():
